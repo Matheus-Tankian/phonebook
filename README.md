@@ -2,6 +2,8 @@
 
 A new Flutter application.
 
+![homepage](https://github.com/Matheus-Tankian/phonebook/blob/master/Screenshot_20200910-220949.jpg)
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
