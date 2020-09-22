@@ -19,43 +19,43 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
 
-  final _nameControler = TextEditingController();
-  final _numberController = TextEditingController();
+  final nameControler = TextEditingController();
+  final numberController = TextEditingController();
 
-  List _listContats = [];
+  List listContats = [];
 
   Map<String, dynamic> _lastRemoved;
-  int _lastRemovedPos;
+  int lastRemovedPos;
 
-  String _addFavorite = "adicionado aos";
-  String _removideFavorite = "removido dos";
+  String addFavorite = "adicionado aos";
+  String removideFavorite = "removido dos";
 
   @override
   void initState(){
     super.initState();
 
-    _readData().then((data) {
+    readData().then((data) {
       setState(() {
-        _listContats = json.decode(data);
+        listContats = json.decode(data);
       });
     });
   }
 
-  void _addContats() {
+  void addContats() {
 
     setState(() {
       Map<String, dynamic> newList = Map();
 
       newList['name'] = _nameControler.text;
-      _nameControler.text = '';
+      nameControler.text = '';
 
       newList['number'] = _numberController.text;
-      _numberController.text = '';
+      numberController.text = '';
 
       newList['favorite'] = false;
 
-      _listContats.add(newList);
-      _saveData();
+      listContats.add(newList);
+      saveData();
 
     });
 
@@ -66,7 +66,7 @@ class _HomeState extends State<Home> {
 
 
     setState(() {
-      _listContats.sort((a , b) {
+      listContats.sort((a , b) {
         if(a['favorite'] && !b['favorite'])
           return -1;
         else if (!a['favorite'] && b['favorite'])
@@ -75,7 +75,7 @@ class _HomeState extends State<Home> {
           return 0;
       });
 
-      _saveData();
+      saveData();
     });
 
     return null;
@@ -96,7 +96,7 @@ class _HomeState extends State<Home> {
               child:
               Expanded(
                 child: TextField(
-                  controller: _nameControler,
+                  controller: nameControler,
                   style: TextStyle(color: Colors.blue[900]),
                   decoration: InputDecoration(
                       labelText:"Nome",
@@ -111,7 +111,7 @@ class _HomeState extends State<Home> {
                   children: <Widget>[
                     Expanded(
                       child: TextField(
-                        controller: _numberController,
+                        controller: numberController,
                         keyboardType: TextInputType.phone,
                         style: TextStyle(color: Colors.blue[900]),
                         decoration: InputDecoration(
@@ -121,7 +121,7 @@ class _HomeState extends State<Home> {
                       ),
                     ),
                     RaisedButton(
-                      onPressed: _addContats,
+                      onPressed: addContats,
                       textColor: Colors.white,
                       color: Colors.deepPurpleAccent,
                       elevation: 10.0,
@@ -134,10 +134,10 @@ class _HomeState extends State<Home> {
             Expanded(
                 child: RefreshIndicator(
                   child: ListView.builder(
-                    itemCount: _listContats.length,
+                    itemCount: listContats.length,
                     itemBuilder: buildItem,
                   ),
-                  onRefresh: _refresh,
+                  onRefresh: refresh,
                 )
             )
           ],
@@ -164,12 +164,12 @@ class _HomeState extends State<Home> {
             Expanded(
               child:ListTile(
                 title: Text(
-                  _listContats[index]['name'],
+                  listContats[index]['name'],
                   style: TextStyle(
                     color: Colors.deepPurpleAccent,
                   ),
                 ),
-                subtitle: Text(_listContats[index]['number']),
+                subtitle: Text(listContats[index]['number']),
               ),
             ),
             Expanded(
@@ -177,19 +177,19 @@ class _HomeState extends State<Home> {
                 alignment: Alignment(1.5, 0.0),
                 child: IconButton(
                   color: Colors.deepPurpleAccent,
-                  icon: Icon( _listContats[index]['favorite'] ? Icons.favorite: Icons.favorite_border),
+                  icon: Icon( listContats[index]['favorite'] ? Icons.favorite: Icons.favorite_border),
                   tooltip: "Favotitar",
                   onPressed: () {
                     setState(() {
-                      _listContats[index]['favorite'] = !_listContats[index]['favorite'];
-                      _saveData();
+                      listContats[index]['favorite'] = !listContats[index]['favorite'];
+                      saveData();
 
                     });
 
                     final snack = SnackBar(
                       content:
                       Text(
-                          "${_listContats[index]['name']} ${_listContats[index]['favorite'] ? _addFavorite : _removideFavorite} favoritos"),
+                          "${listContats[index]['name']} ${listContats[index]['favorite'] ? addFavorite : removideFavorite} favoritos"),
                       duration: Duration(seconds: 2),
                     );
 
@@ -207,7 +207,7 @@ class _HomeState extends State<Home> {
                 tooltip: "Fazer Ligacao",
                 onPressed: (){
                   final snack = SnackBar(
-                    content: Text("Ligando para ${_listContats[index]['name']} ..."),
+                    content: Text("Ligando para ${listContats[index]['name']} ..."),
                     duration: Duration(seconds: 2),
                   );
 
@@ -221,20 +221,20 @@ class _HomeState extends State<Home> {
 
       onDismissed: (direction) {
         setState(() {
-          _lastRemoved = Map.from(_listContats[index]);
-          _lastRemovedPos = index;
-          _listContats.removeAt(index);
+          lastRemoved = Map.from(listContats[index]);
+          lastRemovedPos = index;
+          listContats.removeAt(index);
 
-          _saveData();
+          saveData();
 
           final snack = SnackBar(
-            content: Text("Contato ${_lastRemoved['name']} deletado"),
+            content: Text("Contato ${lastRemoved['name']} deletado"),
             action: SnackBarAction(
                 label: "Desfazer",
                 onPressed: (){
                   setState(() {
-                    _listContats.insert(_lastRemovedPos, _lastRemoved);
-                    _saveData();
+                    listContats.insert(lastRemovedPos, lastRemoved);
+                    saveData();
                   });
                 }),
             duration: Duration(seconds: 2),
@@ -249,24 +249,24 @@ class _HomeState extends State<Home> {
   }
 
   // Recuperar arquivo do diretorio
-  Future<File> _getFile() async {
+  Future<File> getFile() async {
     final directory = await getApplicationDocumentsDirectory();
 
     return File("${directory.path}/contats.json");
   }
 
   // Salvar Dados
-  Future<File> _saveData() async {
-    String data = json.encode(_listContats);
+  Future<File> saveData() async {
+    String data = json.encode(listContats);
 
-    final file = await _getFile();
+    final file = await getFile();
 
     return file.writeAsString(data);
   }
 
-  Future<String> _readData() async {
+  Future<String> readData() async {
     try {
-      final file = await _getFile();
+      final file = await getFile();
 
       return file.readAsString();
 
